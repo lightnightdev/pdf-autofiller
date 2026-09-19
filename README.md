@@ -46,10 +46,5 @@ Three custom fonts are bundled with the project (monospace, standard, and signat
 
 **Copyright © 2026 Joseph Chang. All Rights Reserved.**
 
-This project is licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/).
-
-### What this means:
-* **Allowed:** You may view, clone, study, and run this code for personal, educational, or non-commercial research purposes.
-* **Prohibited:** You may not use this code or its algorithms for commercial purposes, sell it, or redistribute it as part of a commercial product without explicit permission.
-
-For the full license terms, see the [LICENSE](LICENSE) file in this repository.
+This repository and its contents are provided solely for viewing and evaluation purposes.  
+No permission is granted to copy, modify, distribute, or create derivative works from this project without prior written consent from the copyright holder.
