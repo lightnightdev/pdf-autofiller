@@ -1,8 +1,7 @@
 # PDF Autofill Project
 
 ## Developer Notes
-- Currently broken. Transitioning to chrome extension friendly version but lots of things breaking with CSP version of Alpine. Fixing.
-- All inline HTML Alpine functions need to be pushed to the backend.
+- A few features are currently broken due to the current transition to a chrome-extension friendly rewrite. They are primarily CSP issues; all inline HTML Alpine functions need to be pushed to the back-end.
 - Needs a full testing suite
 - While AI was used to help create and debug parts of this app, I am the ultimate author and reviewer of every line of code in this repository. - Joseph Chang
 
