@@ -1,0 +1,37 @@
+First,Last,DOB,MemberID,Phone Number,Address,City,State,Zip,Email,Account,Gender,Plan Choice
+Roselyn,Pollard,2/5/2001,ABC4133,302-644-9160,55 Old York Road,Fitchburg,MA,1420,fmerges@gmail.com,2239774619,F,Plan Option A
+Jad,Walters,3/16/1997,ABC7158,368-703-4639,9438 Main Street East,Palmetto,FL,34221,wikinerd@optonline.net,8771012232,M,Option E?
+Samara,Costa,5/6/1990,ABC5781,908-644-3266,850 3rd Street West,San Lorenzo,CA,94580,mailarc@sbcglobal.net,9776381748,F,Option E?
+Kenji,Andrews,2/12/1973,ABC3309,864-867-8491,7433 Ridge Road,Bemidji,MN,56601,lushe@me.com,3124831275,M,This is Option C
+Payton,Davidson,3/7/2001,ABC9768,966-227-2477,98 9th Street,Lafayette,IN,47905,steve@aol.com,6837430471,F,BTW Option D
+Dante,Brady,7/24/2000,ABC9236,446-528-2995,675 Broadway,Columbia,MD,21044,jcholewa@mac.com,8031526751,M,Plan Option A
+Ryan,House,10/6/1991,ABC8520,827-630-7550,951 Maple Avenue,Port Charlotte,FL,33952,jacks@me.com,8433623656,M,Plan Option A
+Yehuda,Torres,7/30/1986,ABC6136,146-365-3886,3 Shady Lane,Jersey City,NJ,7302,enintend@mac.com,3176868625,M,Plan Option A
+Violet,Perry,11/2/1992,ABC5017,771-296-3708,40 Willow Avenue,Peachtree City,GA,30269,solomon@aol.com,6875726360,F,Option E?
+Waylon,Moon,7/7/1974,ABC9180,170-389-2314,61 Fairway Drive,Orange Park,FL,32065,sopwith@sbcglobal.net,2167023918,M,BTW Option D
+Naya,Weiss,7/16/1986,ABC4075,482-653-3545,73 Magnolia Avenue,Lynnwood,WA,98037,afeldspar@me.com,8700397959,F,Also Option B
+Koa,Kane,9/19/1987,ABC7209,944-955-8677,757 Race Street,Trussville,AL,35173,specprog@comcast.net,2842828921,F,BTW Option D
+Ellianna,Robles,1/24/1982,ABC2166,192-886-2781,75 Dogwood Lane,Dubuque,IA,52001,trieuvan@yahoo.ca,8507507045,F,Plan Option A
+Otto,Higgins,2/14/1996,ABC3292,190-934-8785,2 Fairview Avenue,Pensacola,FL,32503,gomor@live.com,1841581036,M,Plan Option A
+Leighton,Sweeney,3/21/1981,ABC2495,880-250-4352,55 Eagle Street,Lansing,MI,48910,jwarren@att.net,4513252835,F,Also Option B
+Nixon,Mayo,7/11/1968,ABC7168,627-436-5097,457 Pine Street,Hampton,VA,23666,roamer@verizon.net,2609833647,M,This is Option C
+Aarya,Gaines,7/23/1999,ABC2240,753-659-5051,7251 High Street,Lititz,PA,17543,treeves@icloud.com,2259105079,M,Option E?
+Talon,McCullough,7/19/1990,ABC4968,574-657-7980,130 Ashley Court,Goodlettsville,TN,37072,skajan@outlook.com,5036111756,F,Also Option B
+Pollard,Roselyn,2/5/2001,ABC4133,302-644-9160,55 Old York Road,Fitchburg,MA,1420,fmerges@gmail.com,2239774619,F,Plan Option A
+Walters,Jad,3/16/1997,ABC7158,368-703-4639,9438 Main Street East,Palmetto,FL,34221,wikinerd@optonline.net,8771012232,M,Option E?
+Costa,Samara,5/6/1990,ABC5781,908-644-3266,850 3rd Street West,San Lorenzo,CA,94580,mailarc@sbcglobal.net,9776381748,F,Option E?
+Andrews,Kenji,2/12/1973,ABC3309,864-867-8491,7433 Ridge Road,Bemidji,MN,56601,lushe@me.com,3124831275,M,This is Option C
+Davidson,Payton,3/7/2001,ABC9768,966-227-2477,98 9th Street,Lafayette,IN,47905,steve@aol.com,6837430471,F,BTW Option D
+Brady,Dante,7/24/2000,ABC9236,446-528-2995,675 Broadway,Columbia,MD,21044,jcholewa@mac.com,8031526751,M,Plan Option A
+House,Ryan,10/6/1991,ABC8520,827-630-7550,951 Maple Avenue,Port Charlotte,FL,33952,jacks@me.com,8433623656,M,Plan Option A
+Torres,Yehuda,7/30/1986,ABC6136,146-365-3886,3 Shady Lane,Jersey City,NJ,7302,enintend@mac.com,3176868625,M,Plan Option A
+Perry,Violet,11/2/1992,ABC5017,771-296-3708,40 Willow Avenue,Peachtree City,GA,30269,solomon@aol.com,6875726360,F,Option E?
+Moon,Waylon,7/7/1974,ABC9180,170-389-2314,61 Fairway Drive,Orange Park,FL,32065,sopwith@sbcglobal.net,2167023918,M,BTW Option D
+Weiss,Naya,7/16/1986,ABC4075,482-653-3545,73 Magnolia Avenue,Lynnwood,WA,98037,afeldspar@me.com,8700397959,F,Also Option B
+Kane,Koa,9/19/1987,ABC7209,944-955-8677,757 Race Street,Trussville,AL,35173,specprog@comcast.net,2842828921,F,BTW Option D
+Robles,Ellianna,1/24/1982,ABC2166,192-886-2781,75 Dogwood Lane,Dubuque,IA,52001,trieuvan@yahoo.ca,8507507045,F,Plan Option A
+Higgins,Otto,2/14/1996,ABC3292,190-934-8785,2 Fairview Avenue,Pensacola,FL,32503,gomor@live.com,1841581036,M,Plan Option A
+Sweeney,Leighton,3/21/1981,ABC2495,880-250-4352,55 Eagle Street,Lansing,MI,48910,jwarren@att.net,4513252835,F,Also Option B
+Mayo,Nixon,7/11/1968,ABC7168,627-436-5097,457 Pine Street,Hampton,VA,23666,roamer@verizon.net,2609833647,M,This is Option C
+Gaines,Aarya,7/23/1999,ABC2240,753-659-5051,7251 High Street,Lititz,PA,17543,treeves@icloud.com,2259105079,M,Option E?
+McCullough,Talon,7/19/1990,ABC4968,574-657-7980,130 Ashley Court,Goodlettsville,TN,37072,skajan@outlook.com,5036111756,F,Also Option B

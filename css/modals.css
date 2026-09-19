@@ -1,0 +1,88 @@
+.my-modal {
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.my-modal[open] {
+    animation: slideIn 0.2s ease-out;
+}
+
+.my-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.my-modal h2 {
+    margin: 0 0 20px 0;
+    padding: 20px 20px 0 20px;
+}
+
+.my-modal form {
+    padding: 0 20px 20px 20px;
+}
+
+.my-modal input,
+.my-modal textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.my-modal textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.my-modal button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.my-modal button[type="submit"] {
+    background: #4CAF50;
+    color: white;
+}
+
+.my-modal button[type="button"] {
+    background: #ddd;
+    color: #333;
+}
+
+.my-modal button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cell-changed {
+  background-color: #d4edda !important;
+  border-color: #28a745 !important;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table-container table {
+  margin-bottom: 0;
+}
+
+.table-container input {
+  padding: 5px 8px;
+  font-size: 14px;
+}

@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF-CSV Autofiller</title>
+    <link rel="icon" href="css/form.ico" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css?v=2.0.2" />
+    <link rel="stylesheet" href="css/modals.css?v=1.0.1" />
+    <link rel="stylesheet" href="css/toast.css?v=1.0.0" />
+    <!-- Style Import -->
+    <!-- _STYLE_IMPORT_SEARCHKEY -->
+
+    <link rel="stylesheet" href="css_lib/bootstrap-icons.css" />
+    <link rel="stylesheet" href="css_lib/bootstrap.min.css" />
+    <script src="css_lib/bootstrap.bundle.min.js"></script>
+
+    <!-- Bootstrap -->
+    <!-- <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
+  </head>
+
+  <body
+    x-data="{ 
+      leftcollapsed: false,
+      rightcollapsed: false,
+      showCreateColumnModal: false,
+      showConditionalCheckmarkModal: false,
+     }"
+  >
+    <div
+      class="layout"
+      :class="{ 'leftcollapsed': leftcollapsed, 'rightcollapsed': rightcollapsed }"
+    >
+      <!-- Left Sidebar -->
+      <aside class="sidebar left" :class="{ 'p-0': leftcollapsed}">
+        <div class="mb-3">
+          <h1>PDF-CSV Autofiller</h1>
+          <div class="w-100 align-items-center d-flex justify-content-between">
+            <span id="webapp_version_id">v2.3.0</span>
+            <div class="align-items-end">
+              <button
+                class="btn btn-sm btn-outline-secondary m-0"
+                @click="$store.menuState.openAll()"
+              >
+                Expand All
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary m-0"
+                @click="$store.menuState.closeAll()"
+              >
+                Collapse All
+              </button>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <!-- ________________________________ FILE SELECTION ________________________________ -->
+        <div class="menu-block">
+          <div
+            class="menu-header d-flex justify-content-between align-items-center"
+            @click="$store.menuState.toggle(1)"
+          >
+            <h2 class="mb-0 fs-5">Select Files</h2>
+            <i
+              :class="{'bi-caret-down-fill': !$store.menuState.isOpen(1), 'bi-caret-up-fill': $store.menuState.isOpen(1)}"
+              class="bi"
+            ></i>
+          </div>
+          <div
+            x-cloak
+            x-data="fileActions"
+            class="menu-content text-center"
+            x-show="$store.menuState.isOpen(1)"
+            x-transition
+          >
+            <div class="file-input">
+              <div class="file-row d-flex align-items-center gap-1">
+                <button
+                  @click="uploadPDF()"
+                  :class="{'btn-success': $store.pdfState.pdfBytes, 'btn-light border-secondary border-1': !$store.pdfState.pdfBytes}"
+                  class="btn w-100 fw-bold"
+                >
+                  <span
+                    x-text="$store.pdfState.pdfName || 'Select a PDF'"
+                  ></span>
+                </button>
+                <!-- Rename button (only visible if a PDF is loaded) -->
+                <button
+                  x-show="$store.pdfState.pdfBytes"
+                  @click="changePdfName()"
+                  :class="{'btn-warning': $store.pdfState.pdfBytes, 'btn-outline-warning': !$store.pdfState.pdfBytes}"
+                  class="btn btn-sm fw-bold px-2 py-1"
+                >
+                  🖉
+                </button>
+              </div>
+              <div class="file-row">
+                <button
+                  id="btn-upload-csv"
+                  @click="uploadCSV()"
+                  :class="{
+                  'btn-success': $store.csvState.csvData && $store.csvState.csvData.length > 0,
+                  'btn-light border-secondary border-1': !$store.csvState.csvData || $store.csvState.csvData.length === 0
+                }"
+                  class="btn w-100 fw-bold"
+                >
+                  <span
+                    x-text="$store.csvState.csvName || 'Select a CSV'"
+                  ></span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <button
+                @click="clearFiles()"
+                class="btn btn-outline-danger m-2"
+                type="button"
+              >
+                <i class="bi bi-trash"></i> Remove all files
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ________________________________ PDF NAVIGATION ________________________________ -->
+        <div class="menu-block">
+          <div
+            class="menu-header d-flex justify-content-between align-items-center"
+            @click="$store.menuState.toggle(2)"
+          >
+            <h2 class="mb-0 fs-5">PDF Navigation</h2>
+            <i
+              :class="{'bi-caret-down-fill': !$store.menuState.isOpen(2), 'bi-caret-up-fill': $store.menuState.isOpen(2)}"
+              class="bi"
+            ></i>
+          </div>
+          <div
+            x-cloak
+            class="menu-content text-center"
+            x-show="$store.menuState.isOpen(2)"
+            x-transition
+          >
+            <div id="pdf-page-info">
+              Page <span x-text="$store.viewState.currentPage || 0"></span> /
+              <span x-text="$store.pdfState.pdfPages || 0"></span>
+            </div>
+            <div x-data="pdfNavigation" class="text-center">
+              <div id="pdf-page-buttons">
+                <button
+                  @click="prevPage()"
+                  class="btn btn-light border-secondary border-1 btn-sm"
+                >
+                  Previous Page
+                </button>
+                <button
+                  @click="nextPage()"
+                  class="btn btn-light border-secondary border-1 btn-sm"
+                >
+                  Next Page
+                </button>
+              </div>
+              <button
+                @click="removeCurrentPage()"
+                class="btn btn-outline-danger m-3"
+                type="button"
+              >
+                <i class="bi bi-trash"></i> Remove Current Page
+              </button>
+              <button
+                @click="refreshPage()"
+                class="btn btn-light border-secondary border-1 m-2"
+                type="button"
+              >
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ________________________________ PDF MARKER DATA ________________________________ -->
+        <div class="menu-block">
+          <div
+            class="menu-header d-flex justify-content-between align-items-center"
+            @click="$store.menuState.toggle(3)"
+          >
+            <h2 class="mb-0 fs-5">Marker Data</h2>
+            <i
+              :class="{'bi-caret-down-fill': !$store.menuState.isOpen(3), 'bi-caret-up-fill': $store.menuState.isOpen(3)}"
+              class="bi"
+            ></i>
+          </div>
+          <div
+            x-cloak
+            x-data="markerData"
+            class="menu-content text-center"
+            x-show="$store.menuState.isOpen(3)"
+            x-transition
+          >
+            <div>
+              <button
+                @click="clearAllMarkers()"
+                class="btn btn-outline-danger m-2 w40"
+                type="button"
+              >
+                <i class="bi bi-trash"></i> Clear All Markers
+              </button>
+            </div>
+            <div class="d-flex w-100 justify-content-center">
+              <button
+                @click="showDownloadModal()"
+                class="btn m-2 fw-bold btn-light border-secondary border-1 flex-grow-1 w-50"
+              >
+                <i class="bi bi-download"></i> Save
+              </button>
+              <button
+                @click="uploadMarkers()"
+                class="btn m-2 fw-bold btn-light border-secondary border-1 flex-grow-1 w-50"
+              >
+                <i class="bi bi-upload"></i> Load
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ________________________________ OUTPUT OPTIONS ________________________________ -->
+        <div class="menu-block">
+          <div
+            class="menu-header d-flex justify-content-between align-items-center"
+            @click="$store.menuState.toggle(4)"
+          >
+            <h2 class="mb-0 fs-5">Export PDFs</h2>
+            <i
+              :class="{'bi-caret-down-fill': !$store.menuState.isOpen(4), 'bi-caret-up-fill': $store.menuState.isOpen(4)}"
+              class="bi"
+            ></i>
+          </div>
+          <div
+            x-cloak
+            class="menu-content text-center"
+            x-show="$store.menuState.isOpen(4)"
+            x-transition
+          >
+            <div class="mt-3" x-data="pdfActions">
+              <button
+                @click="generateAndExportPDFs()"
+                class="btn btn-light border-secondary border-1 m-1 btn-lg w-100"
+              >
+                Generate PDFs
+              </button>
+
+              <div
+                class="form-check m-3 output-options-checkbox d-flex"
+                :class="{selected: $store.viewState.exportSingle}"
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="export-single-pdf"
+                  x-model="$store.viewState.exportSingle"
+                />
+                <label
+                  class="form-check-label"
+                  for="export-single-pdf"
+                  @click.prevent="$store.viewState.exportSingleToggle()"
+                >
+                  Export all rows as one PDF (for printing)
+                </label>
+              </div>
+
+              <div
+                class="form-check m-3 output-options-checkbox d-flex"
+                :class="{selected: $store.viewState.exportRasterize}"
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="rasterize-output"
+                  x-model="$store.viewState.exportRasterize"
+                />
+                <label
+                  class="form-check-label"
+                  for="rasterize-output"
+                  @click.prevent="$store.viewState.exportRasterize = !$store.viewState.exportRasterize"
+                >
+                  Rasterize output. Removes compatibility issues, but increases
+                  file size.
+                </label>
+              </div>
+
+              <div
+                class="form-check m-3 output-options-checkbox d-flex"
+                :class="{selected: $store.viewState.exportJson}"
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="json-output"
+                  x-model="$store.viewState.exportJson"
+                />
+                <label
+                  class="form-check-label"
+                  for="json-output"
+                  @click.prevent="$store.viewState.exportJsonToggle()"
+                >
+                  + JSON for Google Sheet auto-emailer.
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <!-- ________________________________ TIPS ________________________________ -->
+        <div class="menu-block">
+          <div
+            class="menu-header d-flex justify-content-between align-items-center bg-off-white"
+            @click="$store.menuState.toggle(5)"
+          >
+            <h2 class="mb-0 fs-6">Tips / Shortcuts</h2>
+            <i
+              :class="{'bi-caret-down-fill': !$store.menuState.isOpen(5), 'bi-caret-up-fill': $store.menuState.isOpen(5)}"
+              class="bi"
+            ></i>
+          </div>
+          <div
+            x-cloak
+            class="menu-content"
+            x-show="$store.menuState.isOpen(5)"
+            x-transition
+          >
+            <p class="tip m-2">
+              <b>Placing a marker:</b><br />- Choose a column on the right<br />-
+              Click to place a marker<br />- Click the column again to duplicate
+              it
+            </p>
+            <p class="tip m-2">
+              <b>Editing a marker:</b><br />- Click an existing marker or its
+              column card<br />- Use (+/=) and (-) keys to adjust font size<br />-
+              Use arrow keys to move<br />- Press (Delete) to delete marker
+            </p>
+            <p class="tip m-2">
+              <b>Unzipping on Windows:</b><br />- Right click file > Properties
+              > Unblock
+            </p>
+          </div>
+        </div>
+
+        <hr />
+        <div x-data="{ logboxShow: false}" class="m-2">
+          <button
+            class="btn btn-sm btn-outline-secondary m-2"
+            @click="logboxShow = !logboxShow"
+            x-text="logboxShow ? 'Hide logbox' : 'Show logbox'"
+          ></button>
+
+          <div
+            id="logbox"
+            class="logbox"
+            x-data
+            x-text="$store.logbox.output"
+            x-show="logboxShow"
+            x-transition
+            x-cloak
+          ></div>
+        </div>
+        <div style="height: 80px"></div>
+      </aside>
+
+      <!-- ________________________________ Main PDF Display!!! ________________________________ -->
+      <div class="main-section wrapper text-center content" id="pdf-main">
+        <div id="pdf-stage" class="relative">
+          <!-- Base PDF canvas -->
+          <canvas
+            id="pdf-canvas"
+            x-data="pdfCanvas"
+            @click="handleCanvasClick($event)"
+          >
+          </canvas>
+          <!-- Overlay -->
+          <div id="pdf-overlay" class="absolute top-0 left-0" x-ref="overlay">
+            <!-- Loop through elements on the current page -->
+            <div x-data id="custom-text-overlay" class="absolute top-0 left-0">
+              <template
+                x-for="(item, id) in $store.locData.getCurrentCustomText()"
+                :key="id"
+              >
+                <div
+                  :id="'ct-'+id"
+                  class="custom-text loc-data-el"
+                  :data-id="id"
+                  x-data="draggableItem"
+                  :class="getItemClass(item, id)"
+                  :style="getItemStyle(item)"
+                  @mousedown="onMouseDown($event, item, id)"
+                  @mousemove.window="onMouseMove($event, item)"
+                  @mouseup.window="onMouseUp()"
+                  x-text="item.text"
+                ></div>
+              </template>
+            </div>
+
+            <div id="saved-text-overlay" class="absolute top-0 left-0">
+              <template
+                x-for="(item, id) in $store.locData.getCurrentSavedText()"
+                :key="id"
+              >
+                <div
+                  :id="'st-'+id"
+                  class="saved-text loc-data-el"
+                  :data-id="id"
+                  x-data="draggableItem"
+                  :class="getItemClass(item, id)"
+                  :style="getItemStyle(item)"
+                  @mousedown="onMouseDown($event, item, id)"
+                  @mousemove.window="onMouseMove($event, item)"
+                  @mouseup.window="onMouseUp()"
+                  x-text="item.text"
+                ></div>
+              </template>
+            </div>
+            <template x-if="$store.csvState.csvData.length > 0">
+              <div id="column-overlay" class="absolute top-0 left-0">
+                <template
+                  x-for="(item, id) in $store.locData.getCurrentCsvColumns()"
+                  :key="id"
+                >
+                  <div
+                    :id="'co-'+id"
+                    class="column-text loc-data-el"
+                    :data-id="id"
+                    :data-col-idx="item.colIdx"
+                    x-data="draggableItem"
+                    :class="getItemClass(item, id)"
+                    :style="getItemStyle(item)"
+                    @mousedown="onMouseDown($event, item, id)"
+                    @mousemove.window="onMouseMove($event, item)"
+                    @mouseup.window="onMouseUp()"
+                    x-text="$store.csvState.getSampleRow(item.colIdx)"
+                  ></div>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <aside class="sidebar right" x-cloak>
+        <h2>Select Columns</h2>
+
+        <!-- ________________________________ Font Options ________________________________ -->
+        <div class="container m-2 p-0">
+          <div
+            class="row align-items-center mb-2"
+            data-toggle="tooltip"
+            data-placement="left"
+            data-bs-html="true"
+            title="Press <b>F</b> to change font."
+          >
+            <div class="col-2" :class="{ 'd-none': rightcollapsed}">
+              <strong>Font:</strong>
+            </div>
+            <div class="col-3">
+              <span
+                class="badge bg-secondary fs-6"
+                x-text="$store.fontState.selectedFontParsed"
+              ></span>
+            </div>
+            <div class="col-7 text-muted" :class="{ 'd-none': rightcollapsed}">
+              Press <b>F</b> to change font
+            </div>
+          </div>
+
+          <div
+            class="row align-items-center mb-2"
+            data-toggle="tooltip"
+            data-placement="left"
+            data-bs-html="true"
+            title="Use <b>-</b>/<b>+</b> keys to decrease/increase font size."
+          >
+            <div class="col-2" :class="{ 'd-none': rightcollapsed}">
+              <strong>Size:</strong>
+            </div>
+            <div class="col-3">
+              <span
+                class="badge bg-secondary fs-6"
+                x-text="$store.fontState.selectedSize"
+              ></span>
+            </div>
+            <div class="col-7 text-muted" :class="{ 'd-none': rightcollapsed}">
+              minus/plus (<b>-/+</b>) changes size
+            </div>
+          </div>
+
+          <div
+            class="row align-items-center mb-2"
+            data-toggle="tooltip"
+            data-placement="left"
+            data-bs-html="true"
+            title="Use <b>[</b>/<b>]</b> keys to decrease/increase spacing."
+          >
+            <div class="col-2" :class="{ 'd-none': rightcollapsed}">
+              <strong>Spacing:</strong>
+            </div>
+            <div class="col-3">
+              <span
+                class="badge bg-secondary fs-6"
+                x-text="$store.fontState.selectedSpacing"
+              ></span>
+            </div>
+            <div class="col-7 text-muted" :class="{ 'd-none': rightcollapsed}">
+              brackets <b>[ ]</b> changes spacing
+            </div>
+          </div>
+        </div>
+
+        <!-- ________________________________ Custom/Saved Text Input ________________________________ -->
+
+        <div :class="{ 'd-flex justify-content-between': !rightcollapsed}">
+          <div
+            id="checkmark-card"
+            class="card text-center custom-input-card"
+            @click="$store.viewState.selectType = 'checkmark'"
+            :class="$store.viewState.selectType === 'checkmark' ? 'select' : ''"
+          >
+            <div class="fw-bold mb-1 text-center">Check ✓</div>
+          </div>
+          <div
+            id="checkmark-card"
+            class="card text-center custom-input-card"
+            @click="$store.viewState.selectType = 'today'"
+            :class="$store.viewState.selectType === 'today' ? 'select' : ''"
+          >
+            <div class="fw-bold mb-1 text-center">Today</div>
+          </div>
+
+          <div
+            id="custom-text-card"
+            class="card text-center custom-input-card"
+            @click="$store.viewState.selectType = 'customText'"
+            :class="$store.viewState.selectType === 'customText' ? 'select' : ''"
+          >
+            <div class="fw-bold mb-1 text-center">Custom text</div>
+          </div>
+        </div>
+
+        <div
+          :class="{ 'd-flex justify-content-between align-items-center': !rightcollapsed}"
+        >
+          <div
+            id="saved-text-card"
+            class="card text-center custom-input-card crsr-ptr w40px"
+            @click="$store.viewState.selectType = 'savedText'"
+            :class="$store.viewState.selectType === 'savedText' ? 'select' : ''"
+          >
+            <div class="fw-bold mb-1">Add:</div>
+          </div>
+          <div class="flex-fill mw40px">
+            <label for="saved-text-input" class="form-label d-none"
+              >Saved Text</label
+            >
+            <select
+              id="saved-text-input"
+              class="form-select"
+              :class="$store.viewState.selectType === 'savedText' ? 'select' : ''"
+              x-model="$store.viewState.savedTextSelection"
+              @click="$store.viewState.selectType = 'savedText'"
+            >
+              <optgroup label="Choose One"></optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- ________________________________ LocData Cards ________________________________ -->
+        <div x-data="csvColumnsList">
+          <!-- Only render once csvData exists and has rows -->
+          <template
+            x-if="$store.csvState.csvData && $store.csvState.csvData.length > 0"
+          >
+            <div>
+              <hr />
+              <div
+                :class="{'d-flex align-items-center justify-content-between mb-2': !rightcollapsed}"
+              >
+                <div class="d-flex">
+                  <h2 class="mb-0">CSV Columns</h2>
+                </div>
+                <div :class="{'d-flex gap-2': !rightcollapsed}">
+                  <button
+                    class="btn btn-sm btn-light border-secondary border-1 w-100"
+                    :class="{'my-3': rightcollapsed}"
+                    @click="$dispatch('open-conditional-checkmark-modal')"
+                  >
+                    Conditional Checkmarks
+                  </button>
+                  <button
+                    class="btn btn-sm btn-light border-secondary border-1 w-100"
+                    :class="{'mb-3': rightcollapsed}"
+                    x-data
+                    @click="$dispatch('open-create-column-modal')"
+                  >
+                    Create Column
+                  </button>
+                  <button
+                    @click="$store.csvEditModal.open()"
+                    class="btn btn-light border-secondary border-1"
+                  >
+                    Edit CSV
+                  </button>
+                </div>
+              </div>
+
+              <div id="csv-cards" class="d-flex flex-column gap-2">
+                <template
+                  x-for="(colName, colIdx) in $store.csvState.csvData[0]"
+                  :key="colIdx"
+                >
+                  <div
+                    class="card col-card p-2 text-center cursor-pointer"
+                    @click="$store.viewState.selectColumn(colIdx)"
+                    :class="getCardClass(colIdx)"
+                  >
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      <div
+                        class="col-6 text-start"
+                        :class="{'col-6': !rightcollapsed}"
+                      >
+                        <div class="fw-bold mb-1" x-text="colName"></div>
+
+                        <template
+                          x-for="(row, i) in $store.csvState.getPreviewRows()"
+                          :key="i"
+                        >
+                          <div
+                            class="text-start text-sm"
+                            :class="{'d-none': rightcollapsed}"
+                            x-text="row[colIdx] ? row[colIdx].toString().slice(0, 20) : ''"
+                          ></div>
+                        </template>
+                      </div>
+                      <div
+                        class="col-3 px-3"
+                        :class="{'d-none': rightcollapsed}"
+                      >
+                        <button
+                          class="btn btn-sm btn-outline-primary w-100 text-center"
+                          type="button"
+                          @click.stop="$store.csvState.copyColumn(colIdx)"
+                        >
+                          Copy
+                        </button>
+                      </div>
+
+                      <div class="col-3" :class="{'d-none': rightcollapsed}">
+                        <div
+                          class="card file-name-toggle mt-1 text-center w-100 small"
+                          :class="getFileNameClass(colIdx)"
+                          @click.stop="$store.csvState.toggleFileNameCol(colIdx)"
+                        >
+                          +File Name
+                        </div>
+
+                        <div
+                          class="card send-data-toggle mt-1 text-center w-100 small"
+                          :class="getSendDataClass(colIdx)"
+                          @click.stop="$store.csvState.toggleSendData(colIdx)"
+                        >
+                          +Send Data
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <!-- end csv-cards -->
+            </div>
+          </template>
+        </div>
+
+        <hr />
+
+        <!-- ________________________________ Custom Text Cards ________________________________ -->
+
+        <h2>Custom Text</h2>
+        <div
+          id="custom-cards"
+          class="d-flex flex-column gap-2"
+          x-data="customCardsList"
+        >
+          <template
+            x-for="(item, id) in $store.locData.getCurrentCustomText()"
+            :key="id"
+          >
+            <div
+              class="card col-card p-2 text-center cursor-pointer"
+              @click="$store.viewState.selectType = 'customText'; $store.viewState.selectId = id"
+              :class="{
+                'select': $store.viewState.selectId === id,
+                'loc-data-exists': true
+              }"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-start" :class="getTextColClass()">
+                  <div
+                    class="fw-bold mb-1"
+                    x-text="item.text || '(empty)'"
+                  ></div>
+                  <div
+                    class="text-start text-sm text-muted"
+                    :class="getMutedDivClass()"
+                  >
+                    <span x-text="getItemDetails(item)"></span>
+                  </div>
+                </div>
+
+                <div class="col-3" :class="getMutedDivClass()">
+                  <div
+                    class="btn btn-sm btn-edit send-data-toggle p-0 mt-1 text-center w-100"
+                    @click.stop="editCustomText(id)"
+                  >
+                    Edit
+                  </div>
+
+                  <div
+                    class="btn btn-sm btn-copy send-data-toggle p-0 mt-1 text-center w-100"
+                    @click.stop="copyCustomText(id)"
+                  >
+                    Copy
+                  </div>
+                </div>
+
+                <div class="col-3" :class="getMutedDivClass()">
+                  <div
+                    class="btn mt-1 text-center w-50 btn-outline-danger cursor-pointer"
+                    @click.stop="$store.locData.delIdx(id)"
+                  >
+                    ✖
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <hr />
+
+        <h2>Saved Text</h2>
+        <div id="saved-text-cards" class="d-flex flex-column gap-2">
+          <template
+            x-for="(item, id) in $store.locData.getCurrentSavedText()"
+            :key="id"
+          >
+            <div
+              class="card col-card p-2 text-center cursor-pointer"
+              @click="$store.viewState.selectType = 'savedText'; $store.viewState.selectId = id"
+              :class="{
+        'select': $store.viewState.selectType === 'savedText' && $store.viewState.selectId === id,
+        'loc-data-exists': true
+      }"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <div
+                  class="col-8 text-start"
+                  :class="{'col-8': !rightcollapsed}"
+                >
+                  <div
+                    class="fw-bold mb-1"
+                    x-text="$store.locData.resolveSavedTextLabel(item.key) || '(unknown key)'"
+                  ></div>
+
+                  <div
+                    class="text-start text-sm text-muted"
+                    x-text="$store.locData.resolveSavedText(item.key)"
+                    :class="{'d-none': rightcollapsed}"
+                  ></div>
+                </div>
+
+                <div class="col-4" :class="{'d-none': rightcollapsed}">
+                  <div
+                    class="btn mt-1 text-center w-50 btn-outline-danger cursor-pointer"
+                    @click.stop="$store.locData.delIdx(id)"
+                  >
+                    ✖
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div style="height: 80px"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ________________________________ Modals ________________________________ -->
+
+    <!-- CSV Edit Modal -->
+    <dialog
+      x-ref="csvEditDialog"
+      class="my-modal"
+      style="
+        max-width: 95vw;
+        width: 95vw;
+        max-height: 95vh;
+        height: 95vh;
+        display: flex;
+        flex-direction: column;
+      "
+      x-show="$store.csvEditModal.showModal"
+      x-effect="$store.csvEditModal.showModal ? $store.modal.showDialog($el) : $store.modal.closeDialog($el)"
+      @click="if($event.target === $el) { $store.csvEditModal.close() }"
+      @close="$store.csvEditModal.close()"
+      @keydown.escape.prevent="$store.csvEditModal.close()"
+      x-cloak
+    >
+      <h2 style="margin: 0; padding: 20px 20px 15px 20px; flex-shrink: 0">
+        Edit CSV Data
+      </h2>
+
+      <div
+        class="table-container"
+        style="
+          padding: 0 20px;
+          height: 82%;
+          overflow-y: auto;
+          flex: 1;
+          outline: 1px solid gray;
+        "
+      >
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th style="width: 50px">#</th>
+              <template
+                x-for="(header, colIdx) in $store.csvEditModal.headers"
+                :key="'header-' + colIdx"
+              >
+                <th>
+                  <input
+                    type="text"
+                    :value="header"
+                    @input="$store.csvEditModal.updateHeader(colIdx, $event.target.value)"
+                    :class="{'cell-changed': $store.csvEditModal.isHeaderChanged(colIdx)}"
+                    style="width: 100%; min-width: 150px"
+                  />
+                </th>
+              </template>
+              <th style="width: 40px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template
+              x-for="(row, rowIdx) in $store.csvEditModal.dataRows"
+              :key="'row-' + rowIdx"
+            >
+              <tr>
+                <td x-text="rowIdx + 1" class="text-center"></td>
+                <template
+                  x-for="(cell, colIdx) in row"
+                  :key="'cell-' + rowIdx + '-' + colIdx"
+                >
+                  <td>
+                    <input
+                      type="text"
+                      :value="cell"
+                      @input="$store.csvEditModal.updateCell(rowIdx, colIdx, $event.target.value)"
+                      :class="{'cell-changed': $store.csvEditModal.isCellChanged(rowIdx, colIdx)}"
+                      style="width: 100%; min-width: 150px; margin-bottom: 0"
+                    />
+                  </td>
+                </template>
+                <td>
+                  <button
+                    type="button"
+                    @click="$store.csvEditModal.deleteRow(rowIdx)"
+                    style="
+                      padding: 5px 10px;
+                      margin: 0;
+                      background: #dc3545;
+                      color: white;
+                    "
+                    title="Delete Row"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="padding: 20px; border-top: 1px solid #ddd; flex-shrink: 0">
+        <button
+          type="button"
+          @click="$store.csvEditModal.addNewColumn()"
+          style="background: #6c757d; color: white"
+        >
+          + Add Column
+        </button>
+        <button
+          type="button"
+          @click="$store.csvEditModal.addNewRow()"
+          style="background: #6c757d; color: white"
+        >
+          + Add Row
+        </button>
+        <button
+          type="button"
+          @click="$store.csvEditModal.revertChanges()"
+          style="background: #ffc107; color: #333"
+        >
+          Revert
+        </button>
+        <button type="submit" @click="$store.csvEditModal.saveChanges()">
+          Save Changes
+        </button>
+        <button type="button" @click="$store.csvEditModal.close()">
+          Cancel
+        </button>
+      </div>
+    </dialog>
+
+    <dialog
+      class="my-modal"
+      x-show="showCreateColumnModal"
+      x-effect="showCreateColumnModal ? $store.modal.showDialog($el) : $store.modal.closeDialog($el)"
+      @open-create-column-modal.window="showCreateColumnModal = true"
+      @click="if($event.target === $el) { showCreateColumnModal = false }"
+      @close="showCreateColumnModal = false"
+    >
+      <div x-data="columnBuilder">
+        <div class="border-bottom pb-3 mb-3" style="padding: 20px 20px 0 20px">
+          <h2 class="mb-0">Create New Column</h2>
+        </div>
+
+        <div style="padding: 0 20px 20px 20px">
+          <div class="mb-3 align-items-center py-2">
+            <select
+              class="form-select form-select"
+              style="width: auto; display: inline-block"
+              @change="addColumn($event.target.value); $event.target.value = ''"
+            >
+              <option value="" disabled selected>Add column...</option>
+              <template
+                x-for="(col, idx) in $store.csvState.csvData[0]"
+                :key="idx"
+              >
+                <option :value="idx" x-text="getOptionText(col, idx)"></option>
+              </template>
+            </select>
+            <button
+              type="button"
+              @click="addInput()"
+              class="btn btn-sm ms-2 p-1"
+            >
+              + Add Text/Space
+            </button>
+          </div>
+
+          <div class="border rounded p-1 mb-3" style="min-height: 60px">
+            <template x-for="(part, idx) in builderParts" :key="idx">
+              <div class="d-inline-block me-2 my-2 align-items-center">
+                <div
+                  x-show="part.type === 'column'"
+                  class="badge bg-primary align-items-center"
+                  :class="{'d-flex': part.type === 'column'}"
+                  style="max-height: 30px"
+                >
+                  <div x-text="getCsvData()[0][part.colIdx]"></div>
+                  <button
+                    @click="builderParts.splice(idx, 1)"
+                    class="btn-close btn-close-white ms-2 p-1"
+                    style="font-size: 0.6em; height: 30px"
+                  ></button>
+                </div>
+                <div
+                  x-show="part.type === 'input'"
+                  class="input-group"
+                  style="width: auto"
+                >
+                  <input
+                    x-model="part.text"
+                    class="form-control form-control-sm"
+                    style="height: 30px; width: 50px; background-color: #ccc"
+                    placeholder="text"
+                  />
+                  <button
+                    @click="builderParts.splice(idx, 1)"
+                    class="btn btn-sm btn-outline-danger ms-1 p-1"
+                    style="height: 30px"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div class="border rounded p-3 mb-3 bg-light">
+            <strong>Preview: </strong>
+            <template x-for="part in builderParts">
+              <span
+                x-text="part.type === 'column' ? getCsvData()[1][part.colIdx] : part.text"
+              ></span>
+            </template>
+          </div>
+
+          <div class="text-end">
+            <button @click="showCreateColumnModal = false" class="btn">
+              Cancel
+            </button>
+            <button @click="submit()" class="btn btn-success">Save</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Conditional Checkmark Modal -->
+    <dialog
+      id="conditionalCheckmarkModal"
+      class="my-modal"
+      x-show="showConditionalCheckmarkModal"
+      x-effect="showConditionalCheckmarkModal ? $store.modal.showDialog($el) : $store.modal.closeDialog($el)"
+      @open-conditional-checkmark-modal.window="showConditionalCheckmarkModal = true; $store.conditionalCheckmark.reset()"
+      @click="if($event.target === $el) { showConditionalCheckmarkModal = false }"
+      @close="showConditionalCheckmarkModal = false"
+      style="max-width: 600px; min-height: 600px"
+    >
+      <form method="dialog">
+        <div class="border-bottom pb-3 mb-3" style="padding: 20px 20px 0 20px">
+          <h2 class="mb-0">Conditional Checkmarks</h2>
+        </div>
+
+        <div style="padding: 0 20px 20px 20px">
+          <div class="d-flex py-2 align-items-center form-control p-2">
+            <div class="text-center p-2">Which field to check?</div>
+
+            <!-- Dropdown Button -->
+            <button
+              class="btn dropdown-toggle ms-2"
+              type="button"
+              id="dropdownMenuButton"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              x-text="$store.conditionalCheckmark.selectedColumn || 'Choose a field'"
+            ></button>
+
+            <!-- Dropdown Items -->
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <template
+                x-for="(header, index) in $store.csvState.csvData[0]"
+                :key="header"
+              >
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  x-text="header"
+                  @click.prevent="$store.conditionalCheckmark.setColumn(header,
+                  index)"
+                >
+                </a>
+              </template>
+            </div>
+          </div>
+
+          <!-- Breakdown Table -->
+          <div
+            x-show="$store.conditionalCheckmark.breakdown.length > 0"
+            class="mt-3"
+          >
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Value</th>
+                  <th>Count</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template
+                  x-for="item in $store.conditionalCheckmark.breakdown"
+                  :key="item.value"
+                >
+                  <tr>
+                    <td x-text="item.value || '(empty)'"></td>
+                    <td x-text="item.count"></td>
+                    <td class="d-flex gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm p-1"
+                        :class="$store.conditionalCheckmark.isCheckmark(item.value) ? 'grn-bg' : 'btn-outline-secondary'"
+                        @click="$store.conditionalCheckmark.setRowState(item.value, 'checkmark')"
+                      >
+                        Checkmark
+                      </button>
+
+                      <input
+                        type="text"
+                        class="form-control form-control-sm my-0"
+                        :class="$store.conditionalCheckmark.isInput(item.value) ? 'grn-bg border-success' : ''"
+                        style="height: 30px; width: 100px"
+                        placeholder="text"
+                        :value="$store.conditionalCheckmark.inputValues[item.value] || ''"
+                        @input="$store.conditionalCheckmark.setInputValue(item.value, $event.target.value)"
+                        @focus="$store.conditionalCheckmark.setRowState(item.value, 'input')"
+                      />
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Buttons -->
+          <div class="text-end m-3">
+            <button
+              @click="showConditionalCheckmarkModal = false"
+              class="btn p-2"
+            >
+              Cancel
+            </button>
+            <button
+              @click="saveConditionalCheckmarks()"
+              class="btn btn-success p-2"
+            >
+              Create
+            </button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Download Modal -->
+    <dialog id="downloadModal" class="my-modal">
+      <div>
+        <h2>Download Files</h2>
+        <p style="margin-bottom: 20px; color: #666; padding: 0px 20px 0px 20px">
+          Choose which files you'd like to download:
+        </p>
+      </div>
+      <div
+        style="padding: 0px 20px 20px 20px"
+        class="text-center"
+        x-data="downloadModal"
+      >
+        <button
+          type="button"
+          @click="downloadHeadersOnlyCSV_dm()"
+          style="
+            background: #2196f3;
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+          "
+        >
+          Spreadsheet Template (CSV)
+        </button>
+        <button
+          type="button"
+          @click="downloadMarkers_dm()"
+          style="
+            background: #4caf50;
+            color: white;
+            width: 100%;
+            margin-bottom: 15px;
+          "
+        >
+          Form Markers (JSON)
+        </button>
+
+        <button
+          class="btn btn-light border-secondary border-1 w-100"
+          @click="generateAndExportPDFs_dm(false)"
+          style="
+            border: solid !important;
+            border-width: 1px !important;
+            margin-bottom: 10px;
+          "
+        >
+          All PDFs (ZIP)
+        </button>
+        <button
+          class="btn btn-light border-secondary border-1 w-100"
+          @click="generateAndExportPDFs_dm(true)"
+          style="
+            border: solid !important;
+            border-width: 1px !important;
+            margin-bottom: 10px;
+          "
+        >
+          Single Combined (PDF)
+        </button>
+        <button
+          type="button"
+          class="mt-3"
+          @click="closeModal_dm()"
+          style="background: #ddd; color: #333; width: 50%"
+        >
+          Close
+        </button>
+      </div>
+    </dialog>
+
+    <!-- FOOTERS and TOAST -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="text-center m-2 footer">
+      <button
+        class="btn btn-sm btn-outline-secondary m-2"
+        @click="leftcollapsed = !leftcollapsed"
+      >
+        Toggle Left Sidebar
+      </button>
+      <button class="btn btn-sm btn-outline-warning" onclick="bugReport.show()">
+        Send a Report
+      </button>
+    </div>
+
+    <div class="text-center m-2 footer right">
+      <button
+        class="btn btn-sm btn-outline-secondary m-2"
+        @click="rightcollapsed = !rightcollapsed"
+        x-text="rightcollapsed ? 'Expand Right Sidebar' : 'Shrink Right Sidebar'"
+      ></button>
+    </div>
+
+    <!-- ________________________________ Global key listeners ________________________________ -->
+    <script src="js/handle_keydown.js"></script>
+
+    <!-- ________________________________ Libraries ________________________________ -->
+    <script src="js_lib/pdf-lib.min.js"></script>
+    <script src="js_lib/fontkit.umd.min.js"></script>
+    <script src="js_lib/pdf.min.js"></script>
+    <script src="js/pdf_lib_worker.js"></script>
+    <script src="js_lib/papaparse.min.js"></script>
+    <script src="js_lib/jszip.min.js"></script>
+
+    <!-- <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="js/pdf_lib_worker.js">
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script> -->
+
+    <!-- JS -->
+    <script src="js/font_data.js"></script>
+    <script src="js/toastProgress.js"></script>
+    <script src="js/dragscrolling.js"></script>
+    <script defer src="js/alpineSetup.js?v=1.0.2"></script>
+    <script src="js/conditionalCheckmark.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/locData.js?v=1.0.2"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/bugreport.js?v=1.0.1"></script>
+    <script src="js/viewState.js"></script>
+    <script src="js/data_savedText.js"></script>
+    <script src="js/csvLoader.js"></script>
+    <script src="js/pdfUtils.js"></script>
+    <script src="js/pdfLoader.js"></script>
+    <script src="js/pdfExport.js?v=1.0.2"></script>
+    <script src="js/pdfWriting.js?v=1.0.1"></script>
+    <script defer src="js/_setup.js"></script>
+    <script defer src="js_lib/cdn.min.js"></script>
+
+    <!-- <script> -->
+    <!-- //_JS_IMPORT_SEARCHKEY -->
+    <!-- </script> -->
+  </body>
+</html>
