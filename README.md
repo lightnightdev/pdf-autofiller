@@ -1,8 +1,7 @@
 # PDF Autofill Project
 
 ## Developer Notes
-- Currently broken. Transitioning to chrome extension friendly version but lots of things breaking with CSP version of Alpine. Fixing.
-- All inline HTML Alpine functions need to be pushed to the backend.
+- A few features are currently broken due to the current transition to a chrome-extension friendly rewrite. They are primarily CSP issues; all inline HTML Alpine functions need to be pushed to the back-end.
 - Needs a full testing suite
 - While AI was used to help create and debug parts of this app, I am the ultimate author and reviewer of every line of code in this repository. - Joseph Chang
 
@@ -47,5 +46,10 @@ Three custom fonts are bundled with the project (monospace, standard, and signat
 
 **Copyright © 2026 Joseph Chang. All Rights Reserved.**
 
-This repository and its contents are provided solely for viewing and evaluation purposes.  
-No permission is granted to copy, modify, distribute, or create derivative works from this project without prior written consent from the copyright holder.
+This project is licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/).
+
+### What this means:
+* **Allowed:** You may view, clone, study, and run this code for personal, educational, or non-commercial research purposes.
+* **Prohibited:** You may not use this code or its algorithms for commercial purposes, sell it, or redistribute it as part of a commercial product without explicit permission.
+
+For the full license terms, see the [LICENSE](LICENSE) file in this repository.
