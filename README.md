@@ -4,6 +4,7 @@
 - Currently broken. Transitioning to chrome extension friendly version but lots of things breaking with CSP version of Alpine. Fixing.
 - All inline HTML Alpine functions need to be pushed to the backend.
 - Needs a full testing suite
+- While AI was used to help create and debug parts of this app, I am the ultimate author and reviewer of every line of code in this repository. - Joseph Chang
 
 ## Overview
 The PDF Autofill Project is a browser-based tool for positioning CSV data onto a PDF template and exporting personalized, flattened documents in bulk. It is built entirely with client-side technologies (no server component required) using:
@@ -43,4 +44,13 @@ Three custom fonts are bundled with the project (monospace, standard, and signat
 - The project intentionally avoids external dependencies beyond the CDN-hosted libraries noted above. You can self-host those libraries if offline access is required.
 
 ## License
-- For RemodelHealth
+
+**Copyright © 2026 Joseph Chang. All Rights Reserved.**
+
+This project is licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/).
+
+### What this means:
+* **Allowed:** You may view, clone, study, and run this code for personal, educational, or non-commercial research purposes.
+* **Prohibited:** You may not use this code or its algorithms for commercial purposes, sell it, or redistribute it as part of a commercial product without explicit permission.
+
+For the full license terms, see the [LICENSE](LICENSE) file in this repository.
